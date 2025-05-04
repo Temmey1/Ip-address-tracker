@@ -1,11 +1,15 @@
 import { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
 import Head from "next/head";
-
 import Header from "@/components/Header";
-import IPForm from "@/components/IPForm";
+import IPForm from "@/components/ipForm";
 import SearchHistory from "@/components/SearchHistory";
 import LocationDetails from "@/components/LocationDetails";
+import toast from 'react-hot-toast';
+import ThemeToggle from "@/components/ThemeToggle";
+
+
+
 
 // Dynamically load the map (with SSR disabled)
 const Map = dynamic(() => import("../components/Map"), { ssr: false });
@@ -40,22 +44,25 @@ export default function Home() {
       const res = await fetch(`http://ip-api.com/json/${ipAddress}`);
       const data = await res.json();
       if (data.status === "fail") throw new Error(data.message);
-
+  
       setLocationData(data);
       setError(null);
-
-      // Update search history if new IP
+  
       if (ipAddress && !searchHistory.includes(ipAddress)) {
         const updatedHistory = [ipAddress, ...searchHistory.slice(0, 4)];
         setSearchHistory(updatedHistory);
         localStorage.setItem("ipHistory", JSON.stringify(updatedHistory));
       }
+  
+      toast.success('✅ Location data retrieved!');
     } catch (err) {
       setLocationData(null);
       setError(err.message);
+      toast.error(`❌ ${err.message}`);
     }
     setLoading(false);
   };
+  
 
   return (
     <>
@@ -64,8 +71,9 @@ export default function Home() {
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       </Head>
 
-      <div className="min-h-screen bg-gradient-to-r from-blue-100 to-indigo-200 p-4 flex items-center justify-center">
-        <div className="w-full max-w-3xl bg-white shadow-lg rounded-2xl p-6 space-y-6">
+      <div className="min-h-screen bg-gradient-to-r from-blue-100 to-indigo-200 p-4 flex items-center justify-center dark:bg-gray-400">
+        <ThemeToggle />
+        <div className="w-full max-w-3xl bg-white dark:bg-gray-500 shadow-lg rounded-2xl p-6 space-y-6">
           <Header />
 
           <IPForm ip={ip} setIp={setIp} handleTrackIp={handleTrackIp} />
