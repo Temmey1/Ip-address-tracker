@@ -7,6 +7,7 @@ import IPForm from "@/components/IPForm";
 import SearchHistory from "@/components/SearchHistory";
 import LocationDetails from "@/components/LocationDetails";
 
+// Dynamically load the map (with SSR disabled)
 const Map = dynamic(() => import("../components/Map"), { ssr: false });
 
 export default function Home() {
@@ -28,6 +29,7 @@ export default function Home() {
       }
     };
     getUserIp();
+
     const storedHistory = JSON.parse(localStorage.getItem("ipHistory")) || [];
     setSearchHistory(storedHistory);
   }, []);
@@ -42,6 +44,7 @@ export default function Home() {
       setLocationData(data);
       setError(null);
 
+      // Update search history if new IP
       if (ipAddress && !searchHistory.includes(ipAddress)) {
         const updatedHistory = [ipAddress, ...searchHistory.slice(0, 4)];
         setSearchHistory(updatedHistory);
@@ -64,64 +67,31 @@ export default function Home() {
       <div className="min-h-screen bg-gradient-to-r from-blue-100 to-indigo-200 p-4 flex items-center justify-center">
         <div className="w-full max-w-3xl bg-white shadow-lg rounded-2xl p-6 space-y-6">
           <Header />
+
           <IPForm ip={ip} setIp={setIp} handleTrackIp={handleTrackIp} />
-          <SearchHistory searchHistory={searchHistory} handleTrackIp={handleTrackIp} />
+
+          <SearchHistory
+            searchHistory={searchHistory}
+            handleTrackIp={handleTrackIp}
+          />
 
           {loading && (
             <p className="text-center text-gray-500">🔍 Fetching location...</p>
           )}
+
           {error && (
             <p className="text-center text-red-500 font-medium">
               ❌ Error: {error}
             </p>
           )}
+
           <LocationDetails locationData={locationData} />
+
+          {locationData?.lat && locationData?.lon && (
+            <Map lat={locationData.lat} lon={locationData.lon} />
+          )}
         </div>
       </div>
     </>
   );
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
