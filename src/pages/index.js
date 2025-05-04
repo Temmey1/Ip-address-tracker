@@ -8,7 +8,11 @@ import LocationDetails from "@/components/LocationDetails";
 import toast from "react-hot-toast";
 import ThemeToggle from "@/components/ThemeToggle";
 
-// Dynamically load the map (SSR disabled)
+import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime";
+dayjs.extend(relativeTime);
+
+// ✅ Fix: Dynamic import for Map
 const Map = dynamic(() => import("../components/Map"), { ssr: false });
 
 export default function Home() {
@@ -17,19 +21,27 @@ export default function Home() {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
   const [searchHistory, setSearchHistory] = useState([]);
-  const [mounted, setMounted] = useState(false); // New: mount check
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    setMounted(true); // Indicates client-side mount
-    const storedHistory = JSON.parse(localStorage.getItem("ipHistory")) || [];
-    setSearchHistory(storedHistory);
+    setMounted(true);
+    const storedRaw = JSON.parse(localStorage.getItem("ipHistory")) || [];
+
+    // Normalize old string-based history
+    const normalized = storedRaw.map(item =>
+      typeof item === "string"
+        ? { ip: item, timestamp: new Date().toISOString() }
+        : item
+    );
+    setSearchHistory(normalized);
+    localStorage.setItem("ipHistory", JSON.stringify(normalized));
 
     const getUserIp = async () => {
       try {
         const res = await fetch("https://api.ipify.org?format=json");
         const data = await res.json();
         setIp(data.ip);
-        handleTrackIp(data.ip, storedHistory); // Use stored history on mount
+        handleTrackIp(data.ip, normalized);
       } catch (err) {
         console.error("Error fetching IP:", err);
       }
@@ -48,8 +60,13 @@ export default function Home() {
       setError(null);
 
       const currentHistory = historyOverride || searchHistory;
-      if (ipAddress && !currentHistory.includes(ipAddress)) {
-        const updatedHistory = [ipAddress, ...currentHistory.slice(0, 4)];
+      const isDuplicate = currentHistory.some(entry => entry.ip === ipAddress);
+      if (!isDuplicate) {
+        const newEntry = {
+          ip: ipAddress,
+          timestamp: new Date().toISOString()
+        };
+        const updatedHistory = [newEntry, ...currentHistory.slice(0, 4)];
         setSearchHistory(updatedHistory);
         localStorage.setItem("ipHistory", JSON.stringify(updatedHistory));
       }
@@ -63,7 +80,13 @@ export default function Home() {
     setLoading(false);
   };
 
-  // Prevent SSR mismatch before hydration
+  const handleDeleteIp = (ipToDelete) => {
+    const updated = searchHistory.filter(entry => entry.ip !== ipToDelete);
+    setSearchHistory(updated);
+    localStorage.setItem("ipHistory", JSON.stringify(updated));
+    toast.success("Deleted from history.");
+  };
+
   if (!mounted) return null;
 
   return (
@@ -81,6 +104,7 @@ export default function Home() {
           <SearchHistory
             searchHistory={searchHistory}
             handleTrackIp={handleTrackIp}
+            handleDeleteIp={handleDeleteIp}
           />
 
           {loading && (
