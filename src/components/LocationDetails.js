@@ -14,7 +14,7 @@ export default function LocationDetails({ locationData }) {
   if (!locationData) return null;
 
   return (
-    <div className="bg-indigo-50 dark:bg-gray-800 border border-indigo-200 dark:border-indigo-600 rounded-xl p-4 shadow-md space-y-2">
+    <div className="bg-indigo-50 dark:bg-gray-800 border border-indigo-200 dark:border-gray-800 rounded-xl p-4 shadow-md space-y-2">
       <h2 className="text-xl font-semibold text-indigo-700 dark:text-indigo-300">
         🌐 Your IP Summary
       </h2>

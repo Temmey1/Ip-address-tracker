@@ -21,7 +21,7 @@ export default function Map({ lat, lon }) {
 
   return (
     <div className="w-full mt-6 rounded-xl overflow-hidden border-2 border-indigo-300 shadow-xl">
-      <div className="bg-indigo-600 text-white text-sm font-semibold px-4 py-2">
+      <div className="bg-indigo-600 dark:bg-gray-800 text-white text-sm font-semibold px-4 py-2">
         🌍 Location on Map
       </div>
       <div className="h-[300px] sm:h-[400px]">
