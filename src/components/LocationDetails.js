@@ -1,4 +1,16 @@
+import { useState } from "react";
+
 export default function LocationDetails({ locationData }) {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = () => {
+    if (locationData?.query) {
+      navigator.clipboard.writeText(locationData.query);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000); // Reset after 2 seconds
+    }
+  };
+
   if (!locationData) return null;
 
   return (
@@ -7,8 +19,14 @@ export default function LocationDetails({ locationData }) {
         🌐 Your IP Summary
       </h2>
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 text-sm">
-        <div>
+        <div className="col-span-2 sm:col-span-1 flex items-center gap-2">
           <strong>IP:</strong> {locationData.query}
+          <button
+            onClick={handleCopy}
+            className="ml-2 text-indigo-600 hover:text-indigo-800 text-xs border border-indigo-300 px-2 py-0.5 rounded-md"
+          >
+            {copied ? "Copied!" : "Copy"}
+          </button>
         </div>
         <div>
           <strong>Country:</strong> {locationData.country}{" "}
