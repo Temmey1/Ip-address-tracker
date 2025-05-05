@@ -55,22 +55,27 @@ export default function Home() {
       const res = await fetch(`http://ip-api.com/json/${ipAddress}`);
       const data = await res.json();
       if (data.status === "fail") throw new Error(data.message);
-
+  
       setLocationData(data);
       setError(null);
-
+  
       const currentHistory = historyOverride || searchHistory;
-      const isDuplicate = currentHistory.some(entry => entry.ip === ipAddress);
-      if (!isDuplicate) {
-        const newEntry = {
-          ip: ipAddress,
-          timestamp: new Date().toISOString()
-        };
-        const updatedHistory = [newEntry, ...currentHistory.slice(0, 4)];
-        setSearchHistory(updatedHistory);
-        localStorage.setItem("ipHistory", JSON.stringify(updatedHistory));
-      }
-
+  
+      // move IP to top with updated timestamp
+      const newEntry = {
+        ip: ipAddress,
+        timestamp: new Date().toISOString(),
+        countryCode: data.countryCode
+      };
+  
+      // Remove reoccurrence of the IP
+      const filteredHistory = currentHistory.filter(entry => entry.ip !== ipAddress);
+  
+      // Add to top and keep only latest 5
+      const updatedHistory = [newEntry, ...filteredHistory.slice(0, 4)];
+      setSearchHistory(updatedHistory);
+      localStorage.setItem("ipHistory", JSON.stringify(updatedHistory));
+  
       toast.success("Location data retrieved!");
     } catch (err) {
       setLocationData(null);
