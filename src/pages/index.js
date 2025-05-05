@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
 import Head from "next/head";
 import Header from "@/components/Header";
-import IPForm from "@/components/IPForm";
+import IPForm from "@/components/ipForm";
 import SearchHistory from "@/components/SearchHistory";
 import LocationDetails from "@/components/LocationDetails";
 import toast from "react-hot-toast";
@@ -12,7 +12,6 @@ import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 dayjs.extend(relativeTime);
 
-// Dynamic import for Map
 const Map = dynamic(() => import("../components/Map"), { ssr: false });
 
 export default function Home() {
@@ -22,14 +21,12 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [searchHistory, setSearchHistory] = useState([]);
   const [mounted, setMounted] = useState(false);
-  const [activeIp, setActiveIp] = useState("");
 
   useEffect(() => {
     setMounted(true);
     const storedRaw = JSON.parse(localStorage.getItem("ipHistory")) || [];
 
-    // Normalize old string-based history
-    const normalized = storedRaw.map((item) =>
+    const normalized = storedRaw.map(item =>
       typeof item === "string"
         ? { ip: item, timestamp: new Date().toISOString() }
         : item
@@ -53,31 +50,26 @@ export default function Home() {
   const handleTrackIp = async (ipAddress, historyOverride = null) => {
     setLoading(true);
     try {
-      const res = await fetch(`http://ip-api.com/json/${ipAddress}`);
+      const res = await fetch(`https://ipwho.is/${ipAddress}`);
       const data = await res.json();
-      if (data.status === "fail") throw new Error(data.message);
+
+      if (!data.success) throw new Error(data.message || "Invalid IP");
 
       setLocationData(data);
       setError(null);
-      setActiveIp(ipAddress);
-      const currentHistory = historyOverride || searchHistory;
 
-      // move IP to top with updated timestamp
+      const currentHistory = historyOverride || searchHistory;
+      const updatedHistory = currentHistory.filter(entry => entry.ip !== ipAddress);
+
       const newEntry = {
         ip: ipAddress,
         timestamp: new Date().toISOString(),
-        countryCode: data.countryCode,
+        countryCode: data.country_code
       };
 
-      // Remove reoccurrence of the IP
-      const filteredHistory = currentHistory.filter(
-        (entry) => entry.ip !== ipAddress
-      );
-
-      // Add to top and keep only latest 5
-      const updatedHistory = [newEntry, ...filteredHistory.slice(0, 4)];
-      setSearchHistory(updatedHistory);
-      localStorage.setItem("ipHistory", JSON.stringify(updatedHistory));
+      const finalHistory = [newEntry, ...updatedHistory].slice(0, 5);
+      setSearchHistory(finalHistory);
+      localStorage.setItem("ipHistory", JSON.stringify(finalHistory));
 
       toast.success("Location data retrieved!");
     } catch (err) {
@@ -89,7 +81,7 @@ export default function Home() {
   };
 
   const handleDeleteIp = (ipToDelete) => {
-    const updated = searchHistory.filter((entry) => entry.ip !== ipToDelete);
+    const updated = searchHistory.filter(entry => entry.ip !== ipToDelete);
     setSearchHistory(updated);
     localStorage.setItem("ipHistory", JSON.stringify(updated));
     toast.success("Deleted from history.");
@@ -113,7 +105,6 @@ export default function Home() {
             searchHistory={searchHistory}
             handleTrackIp={handleTrackIp}
             handleDeleteIp={handleDeleteIp}
-            activeIp={activeIp}
           />
 
           {loading && (
@@ -130,12 +121,8 @@ export default function Home() {
 
           <LocationDetails locationData={locationData} />
 
-          {locationData?.lat && locationData?.lon && (
-            <Map
-              key={`${locationData.lat}-${locationData.lon}`} // forces remount when coords change
-              lat={locationData.lat}
-              lon={locationData.lon}
-            />
+          {locationData?.latitude && locationData?.longitude && (
+            <Map lat={locationData.latitude} lon={locationData.longitude} />
           )}
         </div>
       </div>

@@ -10,7 +10,7 @@ function getFlagEmoji(countryCode) {
   );
 }
 
-export default function SearchHistory({ searchHistory, handleTrackIp, handleDeleteIp, activeIp}) {
+export default function SearchHistory({ searchHistory, handleTrackIp, handleDeleteIp, activeIp }) {
   if (searchHistory.length === 0) return null;
 
   return (
@@ -22,21 +22,22 @@ export default function SearchHistory({ searchHistory, handleTrackIp, handleDele
         {searchHistory.map(({ ip, timestamp, countryCode }, index) => (
           <div
             key={index}
-            className={`flex justify-between items-center px-3 py-2 rounded-md text-sm border
-                ${ip === activeIp
-                  ? "bg-blue-200 text-blue-900 dark:bg-blue-700 dark:text-white font-semibold"
-                  : "bg-gray-100 hover:bg-gray-200 hover:text-gray-700 dark:bg-gray-800 dark:text-gray-300 text-gray-800"}
-                border-gray-300`}          >
+            className={`flex justify-between items-center px-3 py-2 rounded-md text-sm border transition-all duration-200
+              ${ip === activeIp
+                ? "bg-blue-200 text-blue-900 dark:bg-blue-700 dark:text-white font-semibold border-blue-300"
+                : "bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-800 dark:text-gray-300 border-gray-300"}
+            `}
+          >
             <button
               onClick={() => handleTrackIp(ip)}
-              className="text-left w-full flex-1 flex items-start gap-2"
+              className="text-left w-full flex-1 flex flex-col sm:flex-row sm:items-center sm:gap-2"
             >
-              <div className="font-medium">
+              <span className="font-medium">
                 {getFlagEmoji(countryCode)} {ip}
-              </div>
-              <div className="text-xs text-gray-500 dark:text-gray-400">
+              </span>
+              <span className="text-xs text-gray-500 dark:text-gray-400 sm:ml-auto">
                 {dayjs(timestamp).fromNow()}
-              </div>
+              </span>
             </button>
             <button
               onClick={() => handleDeleteIp(ip)}

@@ -26,10 +26,13 @@ export default function Map({ lat, lon }) {
       </div>
       <div className="h-[300px] sm:h-[400px]">
         <MapContainer
+          key={`${lat}-${lon}`} // 🧠 force re-render when coords change
           center={[lat, lon]}
           zoom={13}
           scrollWheelZoom={false}
           className="h-full w-full z-0"
+          animate={true}
+          easeLinearity={0.35}
         >
           <TileLayer
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
