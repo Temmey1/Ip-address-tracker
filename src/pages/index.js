@@ -26,7 +26,7 @@ export default function Home() {
     setMounted(true);
     const storedRaw = JSON.parse(localStorage.getItem("ipHistory")) || [];
 
-    const normalized = storedRaw.map(item =>
+    const normalized = storedRaw.map((item) =>
       typeof item === "string"
         ? { ip: item, timestamp: new Date().toISOString() }
         : item
@@ -59,12 +59,14 @@ export default function Home() {
       setError(null);
 
       const currentHistory = historyOverride || searchHistory;
-      const updatedHistory = currentHistory.filter(entry => entry.ip !== ipAddress);
+      const updatedHistory = currentHistory.filter(
+        (entry) => entry.ip !== ipAddress
+      );
 
       const newEntry = {
         ip: ipAddress,
         timestamp: new Date().toISOString(),
-        countryCode: data.country_code
+        countryCode: data.country_code,
       };
 
       const finalHistory = [newEntry, ...updatedHistory].slice(0, 5);
@@ -81,7 +83,7 @@ export default function Home() {
   };
 
   const handleDeleteIp = (ipToDelete) => {
-    const updated = searchHistory.filter(entry => entry.ip !== ipToDelete);
+    const updated = searchHistory.filter((entry) => entry.ip !== ipToDelete);
     setSearchHistory(updated);
     localStorage.setItem("ipHistory", JSON.stringify(updated));
     toast.success("Deleted from history.");
