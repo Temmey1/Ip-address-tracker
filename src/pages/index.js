@@ -12,7 +12,7 @@ import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 dayjs.extend(relativeTime);
 
-// ✅ Fix: Dynamic import for Map
+// Dynamic import for Map
 const Map = dynamic(() => import("../components/Map"), { ssr: false });
 
 export default function Home() {
@@ -28,7 +28,7 @@ export default function Home() {
     const storedRaw = JSON.parse(localStorage.getItem("ipHistory")) || [];
 
     // Normalize old string-based history
-    const normalized = storedRaw.map(item =>
+    const normalized = storedRaw.map((item) =>
       typeof item === "string"
         ? { ip: item, timestamp: new Date().toISOString() }
         : item
@@ -55,27 +55,29 @@ export default function Home() {
       const res = await fetch(`http://ip-api.com/json/${ipAddress}`);
       const data = await res.json();
       if (data.status === "fail") throw new Error(data.message);
-  
+
       setLocationData(data);
       setError(null);
-  
+
       const currentHistory = historyOverride || searchHistory;
-  
+
       // move IP to top with updated timestamp
       const newEntry = {
         ip: ipAddress,
         timestamp: new Date().toISOString(),
-        countryCode: data.countryCode
+        countryCode: data.countryCode,
       };
-  
+
       // Remove reoccurrence of the IP
-      const filteredHistory = currentHistory.filter(entry => entry.ip !== ipAddress);
-  
+      const filteredHistory = currentHistory.filter(
+        (entry) => entry.ip !== ipAddress
+      );
+
       // Add to top and keep only latest 5
       const updatedHistory = [newEntry, ...filteredHistory.slice(0, 4)];
       setSearchHistory(updatedHistory);
       localStorage.setItem("ipHistory", JSON.stringify(updatedHistory));
-  
+
       toast.success("Location data retrieved!");
     } catch (err) {
       setLocationData(null);
@@ -86,7 +88,7 @@ export default function Home() {
   };
 
   const handleDeleteIp = (ipToDelete) => {
-    const updated = searchHistory.filter(entry => entry.ip !== ipToDelete);
+    const updated = searchHistory.filter((entry) => entry.ip !== ipToDelete);
     setSearchHistory(updated);
     localStorage.setItem("ipHistory", JSON.stringify(updated));
     toast.success("Deleted from history.");
@@ -127,7 +129,11 @@ export default function Home() {
           <LocationDetails locationData={locationData} />
 
           {locationData?.lat && locationData?.lon && (
-            <Map lat={locationData.lat} lon={locationData.lon} />
+            <Map
+              key={`${locationData.lat}-${locationData.lon}`} // forces remount when coords change
+              lat={locationData.lat}
+              lon={locationData.lon}
+            />
           )}
         </div>
       </div>
