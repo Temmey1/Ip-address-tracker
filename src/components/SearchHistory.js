@@ -10,7 +10,7 @@ function getFlagEmoji(countryCode) {
   );
 }
 
-export default function SearchHistory({ searchHistory, handleTrackIp, handleDeleteIp }) {
+export default function SearchHistory({ searchHistory, handleTrackIp, handleDeleteIp, activeIp}) {
   if (searchHistory.length === 0) return null;
 
   return (
@@ -22,8 +22,11 @@ export default function SearchHistory({ searchHistory, handleTrackIp, handleDele
         {searchHistory.map(({ ip, timestamp, countryCode }, index) => (
           <div
             key={index}
-            className="flex justify-between items-center bg-gray-100 hover:bg-gray-200 hover:text-gray-700 dark:bg-gray-800 dark:text-gray-300 text-gray-800 px-3 py-2 rounded-md text-sm border border-gray-300"
-          >
+            className={`flex justify-between items-center px-3 py-2 rounded-md text-sm border
+                ${ip === activeIp
+                  ? "bg-blue-200 text-blue-900 dark:bg-blue-700 dark:text-white font-semibold"
+                  : "bg-gray-100 hover:bg-gray-200 hover:text-gray-700 dark:bg-gray-800 dark:text-gray-300 text-gray-800"}
+                border-gray-300`}          >
             <button
               onClick={() => handleTrackIp(ip)}
               className="text-left w-full flex-1 flex items-start gap-2"

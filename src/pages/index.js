@@ -113,6 +113,7 @@ export default function Home() {
             searchHistory={searchHistory}
             handleTrackIp={handleTrackIp}
             handleDeleteIp={handleDeleteIp}
+            activeIp={activeIp}
           />
 
           {loading && (
