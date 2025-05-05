@@ -15,7 +15,7 @@ export default function LocationDetails({ locationData }) {
 
   return (
     <div className="bg-indigo-50 dark:bg-gray-800 border border-indigo-200 dark:border-gray-800 rounded-xl p-4 shadow-md space-y-2">
-      <h2 className="text-xl font-semibold text-indigo-700 dark:text-indigo-300">
+      <h2 className="text-xl font-semibold text-indigo-700 dark:text-gray-300">
         🌐 Your IP Summary
       </h2>
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 text-sm text-gray-800 dark:text-gray-200">

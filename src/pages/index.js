@@ -22,6 +22,7 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [searchHistory, setSearchHistory] = useState([]);
   const [mounted, setMounted] = useState(false);
+  const [activeIp, setActiveIp] = useState("");
 
   useEffect(() => {
     setMounted(true);
@@ -58,7 +59,7 @@ export default function Home() {
 
       setLocationData(data);
       setError(null);
-
+      setActiveIp(ipAddress);
       const currentHistory = historyOverride || searchHistory;
 
       // move IP to top with updated timestamp
