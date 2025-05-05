@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
 import Head from "next/head";
 import Header from "@/components/Header";
-import IPForm from "@/components/ipForm";
+import IPForm from "@/components/IPForm";
 import SearchHistory from "@/components/SearchHistory";
 import LocationDetails from "@/components/LocationDetails";
 import toast from "react-hot-toast";
